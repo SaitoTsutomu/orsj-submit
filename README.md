@@ -53,3 +53,13 @@ start web application.
 ```
 $ orsj-submit run
 ```
+
+## Using docker
+
+Must modify setting.yml & start_cmd of orsj.tgz.
+
+```bash
+wget -qO- <URL of orsj.tgz> | tar zxf -
+docker run -d -u root -p 80:80 -e MAIL_USER=XXX -e MAIL_PASSWD=XXX -e SECRET_KEY=XXX \
+  -v $PWD/orsj:/orsj -w /orsj --name orsj tsutomu7/scientific-python ash start_cmd
+```

@@ -12,8 +12,8 @@ Step 1) $ orsj-submit setting
 Step 2) $ edit setting.yml
 Step 3) $ orsj-submit redis
 Step 4) $ export MAIL_USER=XXX
-    $ export MAIL_PASSWD=XXX
-    $ export SECRET_KEY=XXX
+        $ export MAIL_PASSWD=XXX
+        $ export SECRET_KEY=XXX
 Step 5) $ orsj-submit run
 """
     )

@@ -15,6 +15,7 @@ from email.mime.text import MIMEText
 from email.utils import formatdate
 from html import unescape
 from itertools import groupby
+from pathlib import Path
 from smtplib import SMTP_SSL
 from tempfile import TemporaryFile
 
@@ -155,15 +156,15 @@ def make_allpdf():
                 lst.append((ag, k))
     lst = sorted(lst, key=cmpfnc)
     # make_lstpdf('../all.pdf', lst)  # 1ファイルで作成
-    if os.path.isdir("../all"):
-        shutil.rmtree("../all")
+    if os.path.isdir("all"):
+        shutil.rmtree("all")
     pfx = app.setting.prefix
     for ag, k in lst:
-        dr = "../all/" + ag[:3]
+        dr = "all/" + ag[:3]
         os.makedirs(dr, exist_ok=True)
         make_lstpdf(f"{dr}/{pfx}-{ag}.pdf", [(ag, k)])
     time.sleep(0.1)
-    subprocess.run(["tar", "czf", "../all.tgz", "../all"])
+    subprocess.run(["tar", "czf", "all.tgz", "all"])
 
 
 def make_lstpdf(pnam, lst):
@@ -192,7 +193,7 @@ def make_lstpdf(pnam, lst):
             fr = PyPDF2.PdfFileReader(fp)
             pdf.append(fr, pages=(0, n))
         if n < 2:
-            with open(get_abst("../empty"), "rb") as fp:
+            with open(get_abst("empty"), "rb") as fp:
                 pdf.append(fp)
     if os.path.exists(pnam):
         os.remove(pnam)
@@ -213,7 +214,7 @@ def get_page(f):
 
 
 def get_abst(f):
-    return "orsj/static/pdf/%s.pdf" % f
+    return str(Path(__file__).parent / "static" / "pdf" / f"{f}.pdf")
 
 
 def article_data(dc):
@@ -333,7 +334,7 @@ def len_articles():
 def getfilename(f):
     if not f:
         return None
-    from werkzeug import secure_filename
+    from werkzeug.utils import secure_filename
 
     fn = secure_filename(f.filename)
     if fn.lower() == "pdf":
