@@ -1,10 +1,36 @@
+import shutil
 import sys
 from os import environ
+from pathlib import Path
 from subprocess import Popen
 
 
+def show_help():
+    print(
+        """\
+Step 1) $ orsj-submit setting
+Step 2) $ edit setting.yml
+Step 3) $ orsj-submit redis
+Step 4) $ export MAIL_USER=XXX
+    $ export MAIL_PASSWD=XXX
+    $ export SECRET_KEY=XXX
+Step 5) $ orsj-submit run
+"""
+    )
+
+
 def main():
-    if len(sys.argv) == 1:
+    if len(sys.argv) <= 1:
+        show_help()
+        return
+    com = sys.argv[1]
+    if com == "setting":
+        shutil.copyfile(Path(__file__).parent / "setting.yml", "setting.yml")
+        print("Edit setting.yml")
+    elif com == "redis":
+        p = Popen(["redis-server"])
+        p.wait()
+    elif com == "run":
         from .orsj import app
         from .orsj.views import setting  # noqa
 
@@ -19,5 +45,4 @@ def main():
         # app.debug = True
         app.run(HOST, PORT)
     else:
-        p = Popen(["redis-server"])
-        p.wait()
+        show_help()

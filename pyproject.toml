@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "orsj-submit"
-version = "0.0.1"
+version = "0.0.2"
 description = "Web application of 'submitting papers' in ORSJ."
 authors = ["SaitoTsutomu <tsutomu7@hotmail.co.jp>"]
 homepage = "https://github.com/SaitoTsutomu/orsj-submit"
