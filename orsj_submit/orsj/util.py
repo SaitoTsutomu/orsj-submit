@@ -84,6 +84,11 @@ class User:
         page = str(get_page(get_abst(dc["key"]))) if fnam else ""
         refuse_abst = 1 if dc["refuse_abst"] else 0
         com = dc["comment"].replace("\r\n", " ")
+        dc.update(
+            dict(
+                fnam=fnam, renamed=renamed, page=page, refuse_abst=refuse_abst, com=com
+            )
+        )
         return (
             '"{name}",{email},"{title}",{presentation},{presenter},'
             '{p1}{author1_last},{author1_first},{author1_type},{author1_id},"{author1_dep}",'
@@ -93,15 +98,7 @@ class User:
             '{p5}{author5_last},{author5_first},{author5_type},{author5_id},"{author5_dep}",'
             '"{session}","{keyword1}","{keyword2}",{fnam},{renamed},{assign},{page},'
             '{refuse_abst},"{com}"'
-        ).format(
-            **dc,
-            **pp,
-            fnam=fnam,
-            renamed=renamed,
-            page=page,
-            refuse_abst=refuse_abst,
-            com=com,
-        )
+        ).format(**dc, **pp)
 
     @staticmethod
     def bytedata():

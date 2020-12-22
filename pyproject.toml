@@ -12,7 +12,7 @@ homepage = "https://github.com/SaitoTsutomu/orsj-submit"
 license = "MIT"
 name = "orsj-submit"
 readme = "README.md"
-version = "0.0.4"
+version = "0.0.5"
 
 [tool.poetry.scripts]
 orsj-submit = "orsj_submit:main"
