@@ -1,6 +1,7 @@
 ﻿"""
 Routes and views for the flask application.
 """
+
 import datetime
 import os
 import re
@@ -10,7 +11,7 @@ from html import escape
 from subprocess import call
 from unicodedata import normalize
 
-import PyPDF2
+import pypdf
 from flask import make_response, redirect, request
 
 from . import app
@@ -85,12 +86,7 @@ def signup():
         if session.get("user", "") == "admin":
             return redirect(url)
         else:
-            body = (
-                "次のURLを開いてください\n"
-                + request.base_url[: request.base_url.rindex("/")]
-                + "/confirm/"
-                + key
-            )
+            body = "次のURLを開いてください\n" + request.base_url[: request.base_url.rindex("/")] + "/confirm/" + key
             send_mail(email, f"Sign upの確認 - {setting.ncon}", body)
             return render_ex("message.jade", _title="メッセージ", message="確認メールを送信しました")
     return render_ex("signup.jade", _title="新規アカウント作成", message="項目を入力してください")
@@ -214,9 +210,7 @@ def articles(us):
                     users = []
             for usr in users:
                 if not ismove:
-                    usr.articles = {
-                        k: v for k, v in usr.articles.items() if k not in request.form
-                    }
+                    usr.articles = {k: v for k, v in usr.articles.items() if k not in request.form}
                     save_user(usr)
                 else:
                     for k in usr.articles:
@@ -229,9 +223,7 @@ def articles(us):
             res = check_expired(us)
             if res[0]:
                 return res[1]
-            us.articles = {
-                k: v for k, v in us.articles.items() if k not in request.form
-            }
+            us.articles = {k: v for k, v in us.articles.items() if k not in request.form}
             save_user(us)
             del_abst()
         articles = us.articles.values()
@@ -247,9 +239,7 @@ def articles(us):
 
 
 def check_expired(us):
-    if us.name != "admin" and datetime.datetime.now() > datetime.datetime.strptime(
-        setting.expired, "%Y/%m/%d %H:%M"
-    ):
+    if us.name != "admin" and datetime.datetime.now() > datetime.datetime.strptime(setting.expired, "%Y/%m/%d %H:%M"):
         return True, render_ex("message.jade", _title="メッセージ", message="発表申込期限を過ぎています")
     return False, None
 
@@ -291,11 +281,7 @@ def submit(us, key=None):
             f = None  # 差替えない場合は、アップロードさせない
         for i in range(1, 6):
             nam = getname(dc, i)
-            if (
-                nam
-                and dc["author%s_type" % i] in ["正会員", "学生会員"]
-                and not is_member_id(dc["author%s_id" % i])
-            ):
+            if nam and dc["author%s_type" % i] in ["正会員", "学生会員"] and not is_member_id(dc["author%s_id" % i]):
                 msg.append("著者%sの会員番号を設定してください" % i)
         if not dc["file"]:
             msg.append("アブストラクト原稿(PDF)を設定してください")
@@ -303,7 +289,7 @@ def submit(us, key=None):
             if f and dc["file"]:
                 fn = get_abst(dc["key"])
                 f.save(fn)
-                a = PyPDF2.PdfFileReader(fn)
+                a = pypdf.PdfFileReader(fn)
                 if a.isEncrypted:
                     os.remove(fn)
                     msg.append("アブストラクト原稿(PDF)は暗号化しないでください")
@@ -435,9 +421,7 @@ def dl_all():
     with open(fn, "rb") as fp:
         response.data = fp.read()
     response.headers["Content-Type"] = "application/octet-stream"
-    response.headers["Content-Disposition"] = "attachment; filename=%s" % fn.lstrip(
-        "../"
-    )
+    response.headers["Content-Disposition"] = "attachment; filename=%s" % fn.lstrip("../")
     return response
 
 

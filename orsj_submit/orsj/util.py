@@ -19,7 +19,7 @@ from pathlib import Path
 from smtplib import SMTP_SSL
 from tempfile import TemporaryFile
 
-import PyPDF2
+import pypdf
 import redis
 import yaml
 from flask import render_template, request, session
@@ -32,7 +32,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from . import app
 
 
-class FloatObject(PyPDF2.generic.FloatObject):
+class FloatObject(pypdf.generic.FloatObject):
     def __add__(self, other):
         return self.as_numeric() + other
 
@@ -46,7 +46,7 @@ class FloatObject(PyPDF2.generic.FloatObject):
         return -self.as_numeric() + other
 
 
-PyPDF2.generic.FloatObject = FloatObject
+pypdf.generic.FloatObject = FloatObject
 
 
 class Setting(dict):
@@ -84,11 +84,7 @@ class User:
         page = str(get_page(get_abst(dc["key"]))) if fnam else ""
         refuse_abst = 1 if dc["refuse_abst"] else 0
         com = dc["comment"].replace("\r\n", " ")
-        dc.update(
-            dict(
-                fnam=fnam, renamed=renamed, page=page, refuse_abst=refuse_abst, com=com
-            )
-        )
+        dc.update(dict(fnam=fnam, renamed=renamed, page=page, refuse_abst=refuse_abst, com=com))
         return (
             '"{name}",{email},"{title}",{presentation},{presenter},'
             '{p1}{author1_last},{author1_first},{author1_type},{author1_id},"{author1_dep}",'
@@ -104,10 +100,7 @@ class User:
     def bytedata():
         """article list"""
         return (
-            User.row_cols()
-            + "\r\n".join(
-                User.row_data(ar) for us in load_users() for ar in us.articles.values()
-            )
+            User.row_cols() + "\r\n".join(User.row_data(ar) for us in load_users() for ar in us.articles.values())
         ).encode("utf_8_sig")
 
     @staticmethod
@@ -167,10 +160,8 @@ def make_allpdf():
 def make_lstpdf(pnam, lst):
     pdfmetrics.registerFont(TTFont("IPAexGothic", "/usr/share/fonts/ipaexg.ttf"))
     sty1 = ParagraphStyle("sty1", fontName="IPAexGothic", fontSize=16)
-    sty2 = ParagraphStyle(
-        "sty2", alignment=TA_RIGHT, fontName="IPAexGothic", fontSize=9
-    )
-    pdf = PyPDF2.PdfFileMerger()
+    sty2 = ParagraphStyle("sty2", alignment=TA_RIGHT, fontName="IPAexGothic", fontSize=9)
+    pdf = pypdf.PdfFileMerger()
     for ag, k in lst:
         ff = PdfFormFiller(get_abst(k))
         p = ff.pdf.getPage(0)
@@ -187,7 +178,7 @@ def make_lstpdf(pnam, lst):
         with TemporaryFile() as fp:
             ff.write(fp)
             fp.seek(0)
-            fr = PyPDF2.PdfFileReader(fp)
+            fr = pypdf.PdfFileReader(fp)
             pdf.append(fr, pages=(0, n))
         if n < 2:
             with open(get_abst("empty"), "rb") as fp:
@@ -204,7 +195,7 @@ def make_lstpdf(pnam, lst):
 def get_page(f):
     try:
         with open(f, "rb") as fp:
-            p = PyPDF2.PdfFileReader(fp)
+            p = pypdf.PdfFileReader(fp)
             return p.getNumPages()
     except:
         return -1
@@ -304,9 +295,7 @@ def authenticated(nouser=False, onlyadmin=False):
                 else:
                     us = session.get("user", "")
                 if not us or (onlyadmin and us != "admin"):
-                    return render_ex(
-                        "login.jade", _title="Login", message="Please login"
-                    )
+                    return render_ex("login.jade", _title="Login", message="Please login")
                 logurl()
                 if nouser:
                     return func(*args, **kwargs)
@@ -357,9 +346,7 @@ def get_hash(s):
 
 
 def rand_str(n):
-    return "".join(
-        [random.choice(string.ascii_letters + string.digits) for i in range(n)]
-    )
+    return "".join([random.choice(string.ascii_letters + string.digits) for i in range(n)])
 
 
 def load_data():
